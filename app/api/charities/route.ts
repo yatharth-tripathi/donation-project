@@ -1,30 +1,29 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import dbConnect from '../../../lib/dbConnect';
 import Charity from '../../../models/Charity';
 
-export async function GET(request: NextRequest) {
-  await dbConnect();
+export async function GET() {
   try {
-    const charities = await Charity.find({ isActive: true });
+    await dbConnect();
+    const charities = await Charity.find({});
     return NextResponse.json({ success: true, data: charities });
   } catch (error) {
-    if (error instanceof Error) {
-      return NextResponse.json({ success: false, error: error.message }, { status: 500 });
-    }
-    return NextResponse.json({ success: false, error: 'An unexpected error occurred' }, { status: 500 });
+    console.error('Error fetching charities:', error);
+    const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
+    return NextResponse.json({ success: false, error: errorMessage }, { status: 500 });
   }
 }
 
-export async function POST(request: NextRequest) {
-  await dbConnect();
+export async function POST(request: Request) {
   try {
-    const body = await request.json();
-    const newCharity = await Charity.create(body);
+    await dbConnect();
+    const data = await request.json();
+    const newCharity = new Charity(data);
+    await newCharity.save();
     return NextResponse.json({ success: true, data: newCharity }, { status: 201 });
   } catch (error) {
-    if (error instanceof Error) {
-      return NextResponse.json({ success: false, error: error.message }, { status: 400 });
-    }
-    return NextResponse.json({ success: false, error: 'An unexpected error occurred' }, { status: 400 });
+    console.error('Error creating charity:', error);
+    const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
+    return NextResponse.json({ success: false, error: errorMessage }, { status: 500 });
   }
 }

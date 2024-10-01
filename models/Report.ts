@@ -1,14 +1,16 @@
 import mongoose, { Schema, Document } from 'mongoose';
 
 interface IReport extends Document {
-  charityId: number;
+  id: string; 
+  charityId: string; 
   reporter: string;
   reason: string;
   timestamp: number;
 }
 
 const ReportSchema = new Schema<IReport>({
-  charityId: { type: Number, required: true },
+  id: { type: String, required: true, unique: true }, 
+  charityId: { type: String, required: true }, 
   reporter: { type: String, required: true },
   reason: { type: String, required: true },
   timestamp: { type: Number, required: true },
